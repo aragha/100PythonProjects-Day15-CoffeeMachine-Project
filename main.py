@@ -10,12 +10,14 @@ def print_report():
     Money: $2.5
     """
     # print(f"---------------------")
-    print(f"Our resources report:")
-    print(f"Water: {resources['water']} ml")
-    print(f"Milk: {resources['milk']} ml")
-    print(f"Coffee: {resources['coffee']} ml")
-    print(f"Cash: {money}")
+    # print(f"Our resources report:")
+    # print(f"Water: {resources['water']} ml")
+    # print(f"Milk: {resources['milk']} ml")
+    # print(f"Coffee: {resources['coffee']} ml")
+    # print(f"Cash: {money}")
+    print(f"Water: {resources['water']} ml. Milk: {resources['milk']} ml. Coffee: {resources['coffee']} ml. Cash: {money}")
     print(f"---------------------")
+
 # Press the green button in the gutter to run the script.
 
 def check_resources(drink_request):
@@ -57,22 +59,21 @@ def check_resources(drink_request):
 
 def make_coffee(drink_request):
     global resources
-    goahead = check_resources(drink_request)
+    # goahead = check_resources(drink_request)
     # print(f"goahead: {goahead}")
-    if goahead == 0:
-        if drink_request == 'espresso':
-            resources['water'] -= 50
-            resources['coffee'] -= 18
-        elif drink_request == 'latte':
-            resources['water'] -= 200
+
+    if drink_request == 'espresso':
+        resources['water'] -= 50
+        resources['coffee'] -= 18
+    elif drink_request == 'latte':
+        resources['water'] -= 200
+        resources['coffee'] -= 24
+        resources['milk'] -= 150
+    elif drink_request == 'cappuccino':
+            resources['water'] -= 250
             resources['coffee'] -= 24
-            resources['milk'] -= 150
-        elif drink_request == 'cappuccino':
-                resources['water'] -= 250
-                resources['coffee'] -= 24
-                resources['milk'] -= 100
-    return goahead
-        #
+            resources['milk'] -= 100
+
         # print("Need to restock kitchen. Here's your refund")
 
 def process_coins(drink_request, q, d, n, p):
@@ -99,7 +100,8 @@ def process_coins(drink_request, q, d, n, p):
 
 def take_orders(dr):
     production_status = 0
-    production_status = make_coffee(dr)
+    production_status = check_resources(dr)
+
     if production_status == 0:
         print("Please insert coins.")
         q = float(input("How many quarters: "))
@@ -110,6 +112,7 @@ def take_orders(dr):
         transaction_status = []
         transaction_status = process_coins(dr, q, d, n, p)
         if transaction_status[0]:
+            make_coffee(dr)
             if transaction_status[1] == 0:
                 print(f"Here is your {dr} ☕️. Enjoy!")
             else:
@@ -117,11 +120,45 @@ def take_orders(dr):
         else:
             print("Sorry that's not enough money. Money refunded.")
     else:
-        restock_message={1: "Sorry, we're out of water", 2: "Sorry, we're out of milk",1: "Sorry, we're out of coffee"}
+        restock_message={1: "Sorry, we're out of water", 2: "Sorry, we're out of milk", 3: "Sorry, we're out of coffee"}
         print(f'{restock_message[production_status]}.')
     print_report()
     drink = input('What would you like? (espresso/latte/cappuccino): ')
     return drink
+def volume_test():
+    # drink = input("What would you like? (espresso/latte/cappuccino): ")
+    # drinkslist = ['espresso', 'latte', 'cappuccino']
+    drinkslist = ['latte', 'cappuccino', 'espresso']
+    for dr in drinkslist:
+        print("--------------------------------------------------------------------------------")
+        print(f"ordering {dr} in a row")
+        for i in range(10, 1000, 50):
+            production_status = 0
+            production_status = check_resources(dr)
+            inputchange = [0, 9, 9, i]
+            if production_status == 0:
+                # print("Please insert coins.")
+                q = float(inputchange[0])
+                d = float(inputchange[1])
+                n = float(inputchange[2])
+                p = float(inputchange[3])
+                print(f"drink: {dr}, q: {q}, d: {d}, n: {n}, p: {p}")
+                transaction_status = []
+                transaction_status = process_coins(dr, q, d, n, p)
+                if transaction_status[0]:
+                    make_coffee(dr)
+                    if transaction_status[1] == 0:
+                        print(f"Here is your {dr} ☕️. Enjoy!")
+                    else:
+                        print(f"Here is your {dr} ☕ and here is your change {transaction_status[1]}️. Enjoy! ")
+                else:
+                    print("Sorry that's not enough money. Money refunded.")
+            else:
+                restock_message={1: "Sorry, we're out of water", 2: "Sorry, we're out of milk",3: "Sorry, we're out of coffee"}
+                print(f'{restock_message[production_status]}.')
+            print_report()
+            # drink = input('What would you like? (espresso/latte/cappuccino): ')
+
 
 drinkslist = ['espresso', 'latte', 'cappuccino']
 if __name__ == '__main__':
@@ -135,6 +172,9 @@ if __name__ == '__main__':
     #     # print(process_coins(d, 4, 10, 20, 200))
     #     print(process_coins(d, 4, 0, 0, 0))
     #     print_report()
+    # volume_test()
     drink = input("What would you like? (espresso/latte/cappuccino): ")
     while drink in drinkslist:
         drink = take_orders(drink)
+
+
