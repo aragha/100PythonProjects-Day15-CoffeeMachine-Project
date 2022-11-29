@@ -35,7 +35,7 @@ def check_resources(drink_request):
         else:
             return False
     else:
-        if MENU['cappucino']['ingredients']['water'] >= 250 and MENU['cappucino']['ingredients']['milk'] >= 100  and MENU['cappucino']['ingredients']['coffee'] >= 24 :
+        if MENU['cappuccino']['ingredients']['water'] >= 250 and MENU['cappuccino']['ingredients']['milk'] >= 100  and MENU['cappuccino']['ingredients']['coffee'] >= 24 :
             return True
         else:
             return False
@@ -43,19 +43,21 @@ def check_resources(drink_request):
 
 def make_coffee(drink_request):
     global resources
-
-    if drink_request == 'espresso':
+    goahead = check_resources(drink_request)
+    print(f"goahead: {goahead}")
+    if drink_request == 'espresso' and goahead:
         resources['water'] -= 50
         resources['coffee'] -= 18
-    elif drink_request == 'latte':
+    elif drink_request == 'latte' and goahead:
         resources['water'] -= 200
         resources['coffee'] -= 24
         resources['milk'] -= 150
+    elif drink_request == 'cappuccino' and goahead:
+            resources['water'] -= 250
+            resources['coffee'] -= 24
+            resources['milk'] -= 100
     else:
-        resources['water'] -= 250
-        resources['coffee'] -= 24
-        resources['milk'] -= 100
-
+        print("Need to restock kitchen. Here's your refund")
 
 def process_coins(drink_request, q, d, n, p):
     """
@@ -79,10 +81,29 @@ def process_coins(drink_request, q, d, n, p):
         result_list.append(money_deposited)
     return (result_list)
 
+def take_orders(dr):
+    print("Please insert coins.")
+    q = float(input("How many quarters: "))
+    d = float(input("How many dimes: "))
+    n = float(input("How many nickels: "))
+    p = float(input("How many pennies: "))
+    transaction_status = []
+    transaction_status = process_coins(dr, q, d, n, p)
+    if transaction_status[0]:
+        make_coffee(dr)
+        if transaction_status[1] == 0:
+            print(f"Here is your {dr} ☕️. Enjoy!")
+        else:
+            print(f"Here is your {dr} ☕ and here is your change {transaction_status[1]}️. Enjoy! ")
+    else:
+        print("Sorry that's not enough money. Money refunded.")
+    print_report()
+    drink = input("What would you like? (espresso/latte/cappuccino): ")
+    return drink
 
 drinkslist = ['espresso', 'latte', 'cappuccino']
 if __name__ == '__main__':
-    print_report()
+    # print_report()
     # for d in drinkslist:
     #     print(check_resources("espresso"))
     # for d in drinkslist:
@@ -94,19 +115,4 @@ if __name__ == '__main__':
     #     print_report()
     drink = input("What would you like? (espresso/latte/cappuccino): ")
     while drink in drinkslist:
-        print("Please insert coins.")
-        q = float(input("How many quarters: "))
-        d = float(input("How many dimes: "))
-        n = float(input("How many nickels: "))
-        p = float(input("How many pennies: "))
-        transaction_status = []
-        transaction_status = process_coins(drink, q, d, n, p)
-        if transaction_status[0]:
-            if transaction_status[1] == 0:
-                print(f"Here is your {drink} ☕️. Enjoy!")
-            else:
-                print(f"Here is your {drink} ☕ and here is your change {transaction_status[1]}️. Enjoy! ")
-        else:
-            print("Sorry that's not enough money. Money refunded.")
-        print_report()
-        drink = input("What would you like? (espresso/latte/cappuccino): ")
+        drink = take_orders(drink)
